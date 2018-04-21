@@ -1,0 +1,883 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf210
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset0 Swiss721BT-Roman;}
+{\colortbl;\red255\green255\blue255;\red30\green30\blue30;\red176\green188\blue197;\red85\green142\blue40;
+\red52\green48\blue135;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww19240\viewh15960\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\f0\fs24 \cf0  
+\f1\fs28 \cf2 \cb3 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural
+
+\fs82 \cf0 \cb1 \ul \ulc0 supercollider - UOI module mus411 - (eli fieldsteel) notes
+\fs52 \ulnone \
+\
+
+\fs46 \cf4 \ul Lecture 1 - introduction
+\fs40 \cf0 \
+\
+
+\fs36 application\ulnone  -\
+- editor - where code goes\
+- documentation - help\
+- post window - error checks\
+\
+\ul 3 Components of supcol\ulnone  - \
+- IDE - gui\
+- SClang / interpreter - parser, class library, methods\
+- SCsynth - program that processes all the signal
+\fs40 \
+
+\fs36 \
+\ul syntax and usage\
+\ulnone \
+evaluate line = shift + enter\
+evaluate blocks of code ( (things between brackets) ) = cmd + enter\
+skip between blocks of code = cmd + alt + [ or ]\
+get the doc up for line of code =  shift + cmd + d\
+doc search bar = ctrl + d\
+\
+semi-colon - \'91delineate discreet sentences\'92 like full stop between sentences\
+\
+enclose code in brackets to clump bits of code together, so that we can evaluate them simultaneously\
+\
+any word that starts with a lower case letter needs to be declared as a variable. a var is a container to store values, objects etc\
+\
+declared variables are only preserved within the scope of the code that they are evaluated in when they are declared (local)\
+
+\fs40 \
+
+\fs36 common to have some code for playing sound, other for manipulating sound. local variables aren\'92t persistent so not useful for live audio server based stuff. in order to have a persistent, in effect, \'91global\'92 variable (environment wide), we can use ~, so these two are local / global: \
+\
+local\'85. var number = 2;\
+global\'85. ~number = 2;\
+\
+single lower case letters can be used as persistent global variables too, but as soon as you add another letter this will break. \
+\
+n = 2;               GLOBAL\
+number = 2;     BROKEN\
+\
+we need to use persistent variables for live work. local variables are still useful depending on the context. 
+\fs40 \
+
+\fs36 \
+\ul supercollider as an object-oriented language\
+\
+\ulnone thinking of everything as an object. conceiving every part of the language, server, etc as an object. every object belongs to a class. classes are like blueprints for a given object:\
+\
+2 is a member of the integer class\
+2.31 is a member of the float class\
+[1,2,3] is a member of the array class\
+WhiteNoise.ar is a member of the WhiteNoise class \
+\
+etc\'85\
+\
+cmd+d when highlighting a class type from the post window will give you a class description in the documentation window\
+\
+for example, the class Window is an abstract way of thinking about \'91windows\'92 in general. \
+\
+in supercollider we send messages to objects using the \'91receiver.message\'92 paradigm - first comes receiver or class, then comes the message - what we actually want it to do. \
+\
+w = Window.new;           // declare w as a new instance of the window class\
+\
+w.front;                             //  bring window to front of screen\
+\
+\ul class methods vs. instance methods\
+\
+\ulnone methods = messages. class methods apply to every object of that class, whereas instance methods only apply to specified instances of a class. in the help documentation, class methods are differentiated from instance methods by the little asterisk in front of them (*) - here is an explanation, still relating to the Window class:\
+\
+closeAll - close all instances of window class. i.e.   w.closeAll;\
+\
+view - view the specified instance of the window class, i.e.   w.view;\
+\
+w.background = Color.rand; \
+\
+//	here we use the instance method background which has it\'92s own class method 		Color, which also has its own class method rand. \
+\
+Window.background = Color.rand;  \
+\
+// 	this won\'92t work because Window is a class not a specific object. it\'92s like trying to 		randomise the colour of an abstract idea. \
+\
+every object has a set of specific methods that they understand. there are class methods and instance methods, which will be different for other objects. \
+\
+some methods do work on multiple classes. for instance .squared; method will work on both a number, and an array. .squared; returns the square of a number - for an array it will evaluate the square of each item in the array. If we change one of the numbers in an array of numbers to a string, the .squared; method will not work as we cannot square a string. \
+\
+symbols \'85 \'93\\symbol\'94 \'85 are a class that are a way of naming objects. \
+\
+\ul functions and methods\
+\
+\ulnone functions are delineated with curly brackets. a function is a special type of object that can perform an operation. \
+\
+x = \{1 + 4.5\}; \
+\
+// 	when evaluated this will simply say \'93a Function\'94 in the post window instead of 		returning the value. to return value we must do\'85\
+\
+~result = x.value; \
+\
+// 	value is an instance method for the function class which returns the value of the 		function. \
+\
+an example of interacting with objects, classes, methods\'85 here ~lunch is a global object, it has methods and functions etc\
+\
+~lunch = Sandwich.new;      // new sandwich\
+~lunch.cheese = \\cheddar;  // cheese w eare using\
+~lunch.isToasted;                  // is it toasted? return bool\
+~lunch.toast;                         // toast it, as the bool was false\
+~lunch.eat;                            // delicious\
+~lunch.isToasted;                  // error, as we have already eaten\
+\
+some methods need a little bit more to function - this is where arguments come in. arguments are the values of properties that a method is expecting. \
+\
+w = Window.new(\'93my window\'94, Rect(100,100,200,500)); \
+\
+// 	a window with the name my window and the bounds - xy of initial placement on screen and the width/height of window, both defined in arguments. \
+\
+x = 5.clip(-1, 1);  \
+\
+// 	an example of how methods, seperated by comments\'85. \
+\
+\ul order of operations\
+\
+\ulnone x = 3 + 4 * 5;\
+\
+this will evaluate to 35 instead of the expected 23, supercollider does not follow PEMDAS, or the expected order of operations of mathematical expressions - i.e. multiplication taking precedence over addition. instead it just dumbly goes from left to right. so when we are working with numbers in SC make sure to include parentheses to make it clear the order of how we want things to evaluate. \
+\
+x = 3 + (4 * 5);\
+\
+methods also take precedence over mathematical functions:\
+\
+x = 3 + 4.squared;\
+\
+// 	evaluates to 19 as method comes first \
+\
+\ul stringing methods together \
+\
+\ulnone w = Window.new.front.background = Color.rand;\
+\
+// 	we can string several methods together - new, front and background are all 			methods\
+\
+\ul literal classes\
+\
+\ulnone a literal class is an object that appears on the screen exactly as we would think of them (integers, floats, arrays etc). a non-literal class is something that doesn\'92t have a direct representation in text. \
+\
+\ul functions and arguments\
+\
+\ulnone args are a lot like variables in that they have scope, either local or global, to the function they are within. \
+\
+the results of functions can be stored in global variables, to be used somewhere else in the code later on. remember that one way we can define a global variable is by using a single letter. z = ~myfunction.value(2); etc\
+\
+.free; is a way of stopping something\
+\
+\ul scsynth and it\'92s features: 1\
+\
+\ulnone when we launch the server, it is stored in the global variable s. this is for convenience, so we can do s.boot; etc.\
+\
+! - an exclamation mark duplicates a given float by the following number:\
+\
+Out.ar(out,sig!2); = 2 channels, 0 and 1, left and right. \
+\
+also arrays, busses etc are always counted from 0 \
+\
+1!200 will output 200 1\'92s in an array\
+\
+(\
+x = \{\
+	arg mute =1;\
+	var sig;\
+	sig = SinOsc.ar(330,0,0.1,3)!2;\
+	sig = sig*mute;\
+\}.play;\
+) 	\
+\
+// 	dups outputs, = stereo, as it puts them in an array and the index 0, 1 = L, R. \
+\
+x.free; 		\
+\
+// 	free\'92s the synth node. a synth node is like a temporary \'91leaf\'92 that lives on a branch 	on the server tree until we free it. evaluating the code again will add another leaf 		to that branch - creating a new instance of the synth. our \'91x\'92 only refers to the   		most recently created instance, so if we evaluate the synth twice, it will only shut 		off the second instance. In order to free all nodes we can do cmd + . or evaluate 		s.freeAll; , or to free individual nodes we can store them in global variables 			by changing the synth name and reevaluating each time\'85 ~x1 , ~x2 , 				~x3 .. etc and then do ~x2.free;\
+\
+x.set(\\mute, 0);\
+\
+//	allows us to update an arg in the synth. here we are setting the mute function 		from 1 to 0, so it mutes the synth node without freeing it (destroying it) \
+\
+\ul order of operations \
+\
+\ulnone (\
+~myFunc = \{\
+		arg val1=2, val2=5;\
+		(val1 + val2) / 2;\
+		0;\
+\};\
+)			\
+\
+// 	this function will return 0 and not do anything. because the last line of 				code is 0. in supercollider its understood that the last line of code is what we are 		wanting to return, so we do not write return like in other langs.\
+\
+\
+\ul some nice methods for analysis tools and their shortcuts\ulnone \
+\
+stethoscope - a digital oscilloscope = shift + cmd + m\
+vu meter = cmd + m\
+frequency analyser = alt + cmd + m\
+\'91tree\'92 plot of server nodes (synths etc) = alt + cmd + t\
+\
+
+\fs48 \ul ~UGENS~
+\fs36 \ulnone \
+\
+\'91abstract superclass of all unit generators\'92. a ugen is a special class of objects that exist server side - they produce or manipulate a signal. they live on the server, they interface on the server, and do not have any special \'91meaning\'92 in the language - they are very much server objects. in the doc, tour of ugens is a good place to start. \
+\
+\ul noise + silence\ulnone \
+\
+PinkNoise.ar(0.02); - never put a frequency value (440 etc) in a noise ugen as the first argument is mul, (multiplication = amplitude) and this will completely destroy speakers and ears alike. \
+\
+Silent.ar(2); - silence generator not sure what the point is, arguments are num. channels \
+\
+\ul useful methods for ugens\
+\
+\ulnone .range(lo,hi) - method that u can tack on to the end of a ugen line, to remap the range of the output to the lo,hi set in the args. - i.e. \
+\
+sig = LFSaw.ar(1,0).range(200,550);\
+\ul \
+\ulnone //	lfsaw goes between -1 and 1 every cycle - the first arg is cps. range now maps it to 200 and 500. \
+\
+also .exprange(lo,hi) is a way to make it exponential so we will hear more of the lower values than the hi (or is this more with exprand?)\ul \
+\
+.kr vs .ar\
+\
+\ulnone .kr = control rate - once per cycle of audio, bin etc\
+.ar = audio rate - 64 times per cycle of audio\
+\
+.kr we can use in the guts of a synth but the final line, if we want to get sound out, must be .ar . kr is good to reduce computational load \ul \
+\ulnone \
+
+\fs46 \cf4 \ul Lecture 2 - ranges, envelopes, randomness
+\fs36 \cf0 \ulnone \
+\
+\ul range\
+\
+\ulnone most ugens have mul and add. range is a convenient alternative to modifying them using arguments. mul and add create a range normally because they effectively multiply all of the output of a ugen and add themselves to all of the output. if a SinOsc is at -1 to 1, and we wanted this in the range 10 to 20, we could either do mul 5 add 15; or .range(10,20) - how this looks: \
+\
+SinOsc.ar(20, 0, 5, 15); 				// 3rd and fourth arguments are mul and add.\
+SinOsc.ar(20,0).range(10,20);\
+//	both lines create same output\
+\
+it is critical that we never do both mul / add, and .range(); - or really weird stuff will happen.\
+\
+SinOsc.ar(20, 0, 5, 15).range(10, 20);	// NEVER DO THIS\
+\
+it\'92s important to think of signal in terms of waves, functions etc. so mul and add\'85\
+\
+help doc has this to say:\
+\
+\pard\pardeftab720
+\cf0 A great number of UGens take arguments for mul and add in their\'a0*ar\'a0and\'a0*kr\'a0methods. Because these arguments are so ubiquitous, they are not general documented in the individual help files. Mul and add simply refer to a constant or signal by which to multiply the output of the UGen, and a constant or signal to add to the output of the UGen. (mul happens before add.) They thus correspond in many cases to scaling the amplitude of the UGen signal in the case of mul, and adding a constant or DC offset in the case of add. In most cases the defaults for mul and add are 1 and 0 respectively, and they are commonly implemented using a automatically generated\'a0{\field{\*\fldinst{HYPERLINK "http://doc.sccode.org/Classes/MulAdd.html"}}{\fldrslt \cf5 MulAdd}}\'a0UGen for efficiency. See also the\'a0range\'a0and\'a0madd\'a0methods below.\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural
+\cf0 \
+\ul dc offset\
+\
+\ulnone dc (direct current) offset is when A/C current, or an analogue audio signal - anything that alternates above and below 0 (audio is ranged between -1 and +1); is shifted vertically in one way or another. for speakers, as it is a value that offsets the equilibrium point of their vibration, it can damage them (LeakDC ugen can fix dc offset). \
+\
+however, for modulating signals, it is perfectly to use DC offset. in effect the direct current is applied to the alternating current, shifting it up or down. add can be seen as a dc offset. \
+\
+\ul envelopes, graphs\
+\
+\ulnone we can map a signal to a range by mul and add; using .range(x,y) or more complex ramp generators. some of these mapping methods are: \
+\
+linlin, linexp, explin, expexp, lincurve, curvelin\
+\
+these follow the format: \
+\
+Ugen(inputmin,inputmax,min,max) \'85 // first two are \'91boundaries\'92 - second pair range\
+\
+[1,2,3,4,5].linlin(1,5,100,10000); // line from 1 to 5 mapped linear on to 100 to 10000.\
+\
+.linlin() gives us exactly the same result as .range() \'85\
+\
+for array\'92s in supercollider, when we start to plot them on 2d graphs using .plot; the array index is taken as the X value, and the actual values of the indices in the array are Y values. \
+\
+for actual signal ugens, we need to specify a time grain for the plot - e.g, .plot(0.3); \
+\
+in this way we can start to use these ramp generators to create envelopes, and visually represent these new ranges to help understand what these ramps are actually doing.   \
+\
+\ul envelopes, ENV + ENVGEN\
+\
+\ulnone envelopes are used to control the duration of a signal, by modulating its envelope. \
+A D S R \
+we have already been messing around with modulating the amplitude of ugens. what if we wanted to make a sound happen once, then end? \
+\
+Env is NOT A UGEN. it is an entirely language side object, which is meant to represent \'91break point\'92 envelopes. it is a specification for a segmented envelope. like most objects, we start by calling the .new method on the class. it is commonly used with EnvGen to enact it\'92s envelope on our signal. \
+\
+The first argument Env takes is an array of levels - the first being the initial level. so [0,1,0] = start at zero, go to 1, go back to 0.  \
+\
+The second argument is another array, one less in size than the first, containing the time grain for each segment of movement between the first array\'92s values. [1,2] = go from zero to 1 in one second. go back to 0 in 2 seconds. These segments are effectively our attack and release portion of sound when applied to a signal. \
+\
+The third argument is a third array, referencing the \'91segments\'92 we created in the second array. it is the level of curvature for these two segments. so if we had [0,0] this would be a linear ramp (straight line)\
+\
+e = Env.new([0,1,0],[1,2], [0,0]);  standard a/r env\
+\
+we can continue adding breakpoints to our env, which creates new segments of our envelope. 2nd and 3rd arrays must always be one less than the number of indices in the first. the curvature of our segments are determined by the value and the positivity / negativity. e.g. steep then rounded (+ve) or skate ramp style (-ve)\
+\
+e = Env.new([0,1,0.9,0],[1,4,2.5], [-12,-2,3]); // a/d/r with curves\
+\
+env also has some useful built in parameter types, some of which change the syntax for our arguments. \
+\
+e = Env.perc([0,1,0.9,0],[1,4,2.5], \\linear); // there are also many preset curvature shapes, this will apply lin to all breakpoints. \
+\
+Once we have our envelope with Env, we have to give it life by wrapping it in our EnvGen ugen (remember, env was purely a language side object, ugens are required to act on a signal) here is how this looks:\
+\
+(\
+\{\
+var envelopp, sig\
+envelopp = EnvGen.kr(\
+					Env.new([0,1,0],[0.03,1.7],[0,-1])	// a/r\
+			    );\
+	sig = SinOsc.ar(100)!2;\
+	sig = sig * envelopp * 0.2; 		// turn it down at the end there\
+\}.play;\
+)\
+\
+// self explanatory\
+\
+\ul doneAction and the node tree\
+\
+\ulnone the node tree shows what\'92s living on the server:\
+\
+s.plotTree;\
+\
+if we don\'92t include a doneAction at the end of our synths, the nodes will not free once the envelope ends. this means we will keep adding synth nodes, and since once their lifespan is up we don\'92t need them anymore, we are basically overloading the server with for no reason.\
+\
+doneActions apply to all ugens that are inherently finite or time-based. a doneAction tells our synth what to do once it has reached its end. \
+\
+the default doneAction is 0 - do nothing when the ugen is finished. \
+\
+there is a comprehensive list of all the different types of doneActions on the doneAction help file, but normally we only really use 0 - do nothing, or 2 - free the enclosing synth. Within the context of EnvGen: our Env is the first argument, there are a couple more, but if we simply say doneAction:2, we actually specify which argument we are talking about - using the colon. in practise this looks like:\
+\
+(\
+\{\
+var envelopp, sig\
+envelopp = EnvGen.kr(\
+					Env.new([0,1,0],[0.03,1.7],[0,-1]),	\
+					doneAction:2							// free dat node fam\
+			    );\
+	sig = SinOsc.ar(100)!2;\
+	sig = sig * envelopp * 0.2; 	\
+\}.play;\
+)\
+\
+\ul side note about negative values as default arguments\
+\
+\ulnone when defining the default values for args in a synth, if we want a negative we cannot put thing=-1 , because sc will interpret the =- as some strange binary operation. we get around this by simply putting a space, or encasing the default value for our arg in brackets thing=(-1), thing= -1 \'85\
+we can also just define args\'92 default value by never using an equals sign and just using parentheses: atk(2) etc\
+i think this way is quicker in the long run probably\
+\
+(\
+f = \{\
+arg freq(185), atk=0.05, rel(1.2), relCurve = -2;   // examples of arg syntax\
+var envelopp, sig;\
+envelopp = EnvGen.kr(\
+					Env.new([0,1,0],[atk,rel],[0,relCurve]),	// adding args\
+					doneAction:2							\
+			    );\
+	sig = SinOsc.ar(freq)!2;\
+	sig = sig * envelopp * 0.2; 	\
+\}; 								// get rid of play because this is a def now\
+)\ul \
+\ulnone \
+f.play(args:[\\freq, exprand(200,2000), \\atk, exprand(0.001, 0.2), \\rel, 0.5, \\relCurve, -4]);\
+\
+\ul using env with a midi controller keyboard\
+\
+\ulnone we can use the Env method adsr, to add a degree of control over the sustain release portion of our envelope. this is useful when we are playing the synth with a keyboard controller: we want the sound to sustain for as long as we are depressing the keys, then the release portion to trigger when we release the keys. here goes:\
+\
+(\
+f = \{\
+arg freq(185), atk=0.05, rel=1.2, relCurve = -2, gate = 1;\
+var envelopp, sig;\
+	envelopp = EnvGen.kr(\
+		Env.adsr(atk,0.3,0.03,rel),\
+		gate, // adsr needs a gate value. if this is 1, the sound will stay at the sustain level, until gate is set to 0.\
+		doneAction:2\
+	);\
+	sig = SinOsc.ar(freq)!2;\
+	sig = sig * envelopp * 0.2;\
+\};\
+)\
+\
+~sound = f.play(args:[\\freq, exprand(100,550)]); // will sustain forever\
+~sound.set(\\gate, 0); // until we set gate to 0\
+// also some way of connecting the noteoff message from midi controller to this .set(\\gate, 0)\
+\
+\ul controlling things other than amplitude with an envelope\
+\
+\ulnone envelopes can be useful for controlling other parameters and qualities of our synths. here we apply the envelope to the frequency. however now we have two doneActions, so we need to make sure the only one that is active is the one that frees our synth nodes at the very end of our desired sound. we can just leave out the done action on the second one \
+\
+(\
+f = \{\
+arg atk=0.015, rel=1, relCurve = -3, gate = 1;\
+var envelopp, sig, freq;\
+	envelopp = EnvGen.kr(\
+		Env.new([0,1,0],[atk,rel],[0,relCurve]),\
+		doneAction:2\
+	);\
+	freq = EnvGen.kr(\
+		Env.new([222,105,20],[atk,rel],[3,-3]),\
+		// doneAction:2\
+	);\
+	sig = LFTri.ar(freq)!2;\
+	sig = sig * envelopp * 0.2;\
+\}.play(fadeTime:0);\
+)\
+\
+// this is sort of a gabba kick style thing\
+\
+(\
+f = \{\
+arg atk=1, rel=5, relCurve = \\linear, gate = 1;\
+var envelopp, sig, freq;\
+	envelopp = EnvGen.kr(\
+		Env.circle([0.001,1,0.85,0.2,0.85,0],[0.01,0.77,0.001,0.0012,0.0001],relCurve),\
+		doneAction:2\
+	);\
+	freq = EnvGen.kr(\
+		Env.new([333,208,177.8,33.2],[atk,rel,0.3],[-1,-22]),\
+		//doneAction:2\
+	);\
+	sig = LFTri.ar(freq)!2;\
+	sig = sig * envelopp * 0.2;\
+\}.play(fadeTime:0);\
+)\
+\
+//  exploring .circle (segmented envelope)\
+\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural
+
+\fs38 \cf0 \ul randomness and ARRAYS
+\fs36 \ulnone \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural
+\cf0 \ul \
+rng (random number generators, language level, work only when evaluated)\
+\
+\ulnone rrand(mininteger, maxinteger) = random integer between bounds\
+\
+rrand(minfp, maxfp) = random floating point between bounds\
+\
+rrand(minfp, maxinteger) = random floating point between bounds (one or both = floats)\
+\
+exprand(non negative or zero min, max) = exponential distribution randomness - more likely to be bottom of range than top. cannot cross or include zero because of the way exponentials work. also always generates floating points\
+\
+.round() = method which can round to integer (default) or set to which decimal place we would like to round to. in this way we can always change the output of our rng to be fp or decimal\
+\
+\ul dup and rand, objects and functions\
+\
+\ulnone .dup = duplicate\
+! = .dup\
+\
+4.dup(3) = returns [4,4,4]\
+4!3 = exactly the same\
+\
+rrand(1,100)!5 = duplicate result of rrand five times\
+\
+[rrand(1,100)!5,rrand(1,100)!5,rrand(1,100)!5,rrand(1,100)!5,rrand(1,100)!5,] = stupid way of writing an array of 5 rn\
+\
+\{rrand(1,100)\}!5 = here we enclose rrand(1,100) in curly brackets - meaning we are creating it as a function. because we have turned it into a function, now we are duplicating the function call five times, resulting in an array of 5 random numbers\
+\
+objects (numbers, strings, ugens) respond to duplication by simply being duplicated\
+functions(\{\}) respond to duplication by not just duplicating themselves, but also evaluating themselves for each duplication. useful\
+\
+\ul arrays\
+\ulnone \
+arrays can be created, filled, cleared, created empty as placeholders etc, by using a variety of methods. \
+\
+x = [1,2,3,4];\
+x[3] \'85 returns four. \
+\
+the Array class is used to do handy tricks such as counting in series or geometrically.\
+\
+x = Array.series(100,1,1) // fill array with 100 things, count up from 1, by 1 each time, until 100\
+x = Array.geom(10,2,3) // 10 things, start at 2, multiply each time by 3\
+\
+using regular old parentheses to create arrays in series\'85\
+\
+(-10..10) // count from -10 to 10\
+(1,1.1..10) // count from 1 to 10 by .1 each time\
+\
+there are also math methods which pretty much do what you would expect them to. \
+\
+x\
+x.squared; // square each index\
+x.size; // return size of array\
+x.sum; // add all the indexes\
+x.mean; // mean avg the indexes\
+\
+array syntax is the same as C, i think. \
+\
+x.add(1); // add another index to the array and fill it with one. if we keep evaluating it it will not work as we have only allocated a set amount of memory space to the array. \
+x = x.add(1); // resize by reallocating memory, allowing us to keep adding another number one each time.  \
+\
+\ul arrays in music\ulnone \
+\
+when UGens are involved, SC assumes that an array is pointing to the audio output channels. multichannel expansion means that sclang realises objects within arrays are linked by their shared index. so, if an array [1,2] pops up somewhere in the code, then later in the same chunk of code another array [3,4] pops up, both (1 and 3) and (2 and 4) are being sent to the same bus. if they are ugens this will sum their outputs in the order they are written.\
+this fact can be used to shorten blocks of code by utilising it to \'91expand\'92 one signal by many things, or vice-versa.\
+\
+we can set the number of channels by calling the server options\
+\
+s.options.numOutputBusChannels = 9;\
+s.reboot;\
+s.meter;\
+\
+// 9 channel diffusion\
+ \
+\
+
+\fs46 \cf4 \ul Lecture 3 - synth and synthdef, conditional logic, iteration\
+\
+
+\fs36 \cf0 synth and synthdef\
+\
+\ulnone .play = happy meal\
+synthdef, synth = homecooked three course buffet \
+\
+\ul iteration\
+\
+\ulnone *receiver = the thing we are iterating using do or collect*\ul \
+\
+\ulnone two methods for iteration that tend to be used most frequently:\
+\
+x.do\
+\
+x.collect\
+\
+these methods are defined for a class called collection. \
+collection is a superclass of many different types of collections - array, list, dictionary are all types of collections. \
+methods do and collect are therefore defined for all subclasses of collection\
+\
+do will evaluate it\'92s function for each item in the collection, optionally passing the item from the collection into the function on each evaluation. in this way it is good for do -ing the same thing to each thing in a collection such as an array. it returns at the end an unchanged array\
+\
+collect does the same as do, but it returns a changed receiver at the end. this does not change the receiver for good, but it\'92s ability to return the changed receiver is useful. if we wanted to permanently set the receiver to the result of collect, we must set the receiver equal to its collection. \
+\
+in practise: \
+\
+a = \{rrand(10,50)\}!8 // start off with new array, 'a' with a set of 8 rand numbers\
+\
+(\
+a.do(\{\
+	arg num;\
+	num.linexp(10,50,1000,2000).postln;\
+\})\
+) // here we have done the same thing as \'93a.linexp(10,500,1000,2000)\'94, but our function posts to the window firstly each individual result for linexp on a, then finally it returned an unmodified call of it\'92s receiver (the array 'a'). notice that do always returns its receiver unchanged at the end\
+\
+(\
+a.collect(\{\
+	arg num;\
+	num.linexp(10,50,1000,2000).postln;\
+\})\
+) // collect does the same as do but returns the modified receiver (what we are doing the do on) at the end, although, like do, 'a' will not have actually changed, unless......\
+\
+(\
+a = a.collect(\{\
+	arg num;\
+	num.linexp(10,50,1000,2000).postln;\
+\})\
+)  // ........we set 'a' equal to the collect, we can then change the array to the result\
+\
+a // ..a is now set to a bunch of crazy exp numbers\
+\
+\ul uses of iteration\
+\
+\ulnone eli runs through some useful ways which we can use iteration - instead of setting \'91a\'92 back to the result of our collect, we can create a synthdef and set a named array proxy ~synths to the result of the collect we are calling on \'91a\'92. this means we will make an array of synths which we can then access and modify individually by calling their index in the array. \
+\
+synthdef\'85 (imagine its a really normal synthdef called \\pureToneB)\
+\
+(\
+~synths = a.collect(\{\
+	arg noteNum;\
+	Synth.new(\\pureToneB, [\
+		\\freq, noteNum.midicps,\
+		\\amp, 0.01,\
+	]);\
+\});\
+)\
+\
+~synths[5].set(\\freq, 65.midicps);  // set synth at index 6 of the array to midi note 65\
+\
+we can then use do on our synths to iteratively modify an argument or variable in our iteratively generated array of synth nodes \'93~synths\'94. \
+\
+(\
+~synths.do( \{\
+	arg synth; // create arg with arbitrary name then for every one of our 8 do's we use it to change \\freq\
+	synth.set(\\freq, rrand(40,80).midicps);\
+\})\
+)\
+\
+then, someone in the chat asked 'could you set a wait period between each iteration over the array'\
+routine is a function that we can pause and restart by telling it to wait(seconds)\
+\
+(\
+Routine.new(\{\
+	"hi".postln;\
+	wait(1.4); //wait 1.4 seconds\
+	"byebye".postln;\
+\}).play; // lol\
+)\
+\
+(\
+Routine.new(\{\
+	~synths.do(\{\
+		arg synth;\
+		synth.set(\\freq, rrand(40,80).midicps);\
+		"changed".postln;\
+		wait(0.75); \
+	\});\
+\}).play;\
+)\
+\
+after each individual ~synth (instant of \\puretoneB) freq set random, we wait 0.75s before changing the next ones frequency. \
+\
+so, to summarise the order that we must do things in for this to work: \
+\
+1. create synthdef with arguments and variables\
+2. define an array of values, in this case \'91a\'92\
+3. call collect on our array \'91a\'92 and set the result equal to multiple nodes of our synth def, stored in \'91~synths\'92\
+4. use routine and do to iteratively modify each synthdef node\
+\
+\ul taking iteration to the next level: nested do loops, iteration within synthdef\
+\ulnone \
+(\
+Routine.new(\{\
+\
+	(1..10).do(\{ // do ten times, 10.do also works\
+\
+		~synths.do(\{\
+			arg synth;\
+			synth.set(\\freq, rrand(40,80).midicps);\
+			"changed".postln;\
+		\});\
+\
+	wait(0.75); // wait needs to go outside of the first do loop now, because we want them to all change at once\
+\
+	\});\
+\}).play;\
+)\
+\
+this is beautiful because we are using a do within a do and have achieved peak hacker levels. it will generate the first array of synthdef nodes, then wait 0.75s and change them all to their own individual random values between midi notes 40 to 80, and repeat this 10 times. \
+\
+(\
+SynthDef.new( \\pureTone2, \{\
+	arg amp=0.5, gate=1, out=0;\
+	var sig, temp, env;\
+	sig = 0;\
+	env = EnvGen.kr(\
+		Env.asr,\
+		gate,\
+		doneAction:2\
+	);\
+		16.do(\{\
+			arg i;\
+		temp =SinOsc.ar( (i+1) * 100, 0, amp);\
+			sig = sig + temp;\
+	\});\
+			sig = sig * env;\
+			Out.ar(out,sig!2);\
+\}\
+).add;\
+)\
+\
+Synth.new(\\pureTone2, [\\amp, 0.01]);\
+\
+here we make a harmonic series by adding 1 and multiplying by 100. temp returns 100, 200,300,400... and so on, then sig is set to the addition of itself and temp, which makes: 0 + 100, 100+200, 200+300, 300 + 400, etc., which ends up being a partial harmonic series (missing out every other partial) 100,300,500,700... the more sinosc we add through our do loop with temp, the more buzzy the noise gets.\
+\
+one of the earlier examples went through using:\
+\
+temp =  SinOsc.ar(exprand(200,1800), 0, amp); \
+\
+which, when used inside the do, adds 16 random sines between 200 and 1800 hz together. however, these 16 sines will be fixed once we have added this synthdef to our dictionary, meaning synth.new will return the same sound each time. this is because of the way the interpreter reads the method exprand. we can get around this, so that each new Synth.new actually makes a new set of 16 random sines, by using the UGen version of exprand, ExpRand. \
+\
+temp =  SinOsc.ar(ExpRand(200,1800), 0, amp);\
+\
+video - 1.24.50 \
+\
+\ul Conditionals: if, else, for, while, switch, case etc\ulnone \
+\
+conditionals in supercollider work as you would expect them to. for if-\
+\
+[0,1].choose == 1; // choose chooses 0 or 1 when evaluated. == 1 will return true if it\'92s 1. \
+\
+(\
+if (\
+	[0,1].choose ==1,\
+	\{\'93chose one\'94.postln\},					// \'91else\'92 is assumed if second function given\
+	\{\'93chose zero\'94.postln\}\
+);\
+)\
+\
+\ul if inside a synthdef / ugen\
+\
+\ulnone as \'91if\'92 is a language side operation, it is important to realise we cannot use it in the normal way inside a synthdef , as that exists on the server side (or inside anything else on the server). There is however a workaround. \
+\
+simple way of using if, to demonstrate it\'92s usage outside of a synthdef:\
+\
+(\
+x = rrand(0,1);\
+if(\
+	x > 0,\
+	\{\
+		\{SinOsc.ar(500!2) * XLine.kr(0.7,0.001,1,doneAction:2)\}.play;\
+	\},\
+	\{\
+		\{Saw.ar([60,61]) * XLine.kr(0.4,0.001,1,doneAction:2)\}.play;\
+	\}\
+);\
+)\
+\
+attempting to use if inside a synth~ - in this format it will only spit out the first chosen sig. this is because it will run the if statement once when the ~synth is first made, and use that result from the first evaluation every time, even if we keep changing choose. again this is because ~synth is initialised on the server and if is language side only. \
+\
+(\
+~synth = \{\
+	arg choose=0;\
+	var sig;\
+\
+	if(\
+		choose ==0,\
+		\{sig = SinOsc.ar(500!2)\},\
+		\{sig = Saw.ar([60,61])\},\
+	);\
+	sig = sig * 0.1;\
+\}.play\
+)\
+\
+a similar thing as a synthdef. the logic is not updated on the server, it will always be equal to whichever value of sig gets choos\'92d: \
+\
+(\
+SynthDef.new(\\if,  = \{\
+	arg choose=0;\
+	var sig;\
+	choose.poll;   // like postln but runs on the server\
+	if(\
+		choose !=0,\
+		\{sig = SinOsc.ar(500!2)\},\
+		\{sig = Saw.ar([60,61])\},\
+	);\
+	sig = sig * 0.1;\
+	Out.ar(0,sig);\
+\}).add;\
+)\
+\
+~synth = Synth.new(\\if, [\\choose, 0]); // call a new instance of our synthdef if and set choose to 0\
+\
+an example of the workaround. the server only understands one type of data: floating point numbers. there is a ugen called Select.ar\'85 \
+\
+(\
+SynthDef.new(\\if,  \{\
+	arg choose=0;\
+	var sig;\
+	sig = Select.ar(\
+		choose,\
+		[\
+			sig = SinOsc.ar(500!2),\
+			sig = Saw.ar([60,61])\
+		]\
+	);\
+	sig = sig * 0.1;\
+	Out.ar(0,sig);\
+\}).add;\
+)\
+\
+~synth = Synth.new(\\if, [\\choose, rrand(0,1)]);\
+\
+\'85it works!\
+\
+search in the help window \'93control structures\'94 -  cmd+f (iteration, conditional etc) - explanation, really useful\
+also search \'93collection\'94 - explanation of do, collect, select\'85\
+\
+
+\fs46 \cf4 \ul Lecture 4 - UGens: mouse, buffers,\
+\
+
+\fs36 \cf0 mouse function ugens\
+\
+\ulnone MouseX, MouseY, MouseButton\'85\
+\
+classic supercollider theremin:\
+\
+(\
+\{\
+	var sig, freq, amp, amp2;\
+	amp = MouseY.kr(0,1,0).clip(0,1).poll; // clip in case of second screen \
+	amp2 = MouseButton.kr(0,1,0); // click to send 1, the second 0 is lag setting\
+	freq = MouseX.kr(100,2000,1).poll; // 1 = exponential\
+	SinOsc.ar(freq, 0, 0.2!2) * amp * amp2;\
+\}.play\
+)\
+\
+\ul buffers\
+\
+\ulnone here we go. soundfiles. \
+a buffer is most often used to hold sampled audio, such as a soundfile loaded into memory\'85.\
+\
+s = the local server. read the buffer b onto our local server. \
+\
+b = Buffer.read(s, \'93/Users/JamesR/TUNES/SAMPLES/WEALD_PIX_KOLE/SOUNDBANK/Objects/bridgeday_noiseping_fade_9.wav\'94);\
+\
+b.duration;\
+b.numFrames; // numframes = numsamples * numchannels\
+b.numChannels;\
+b.sampleRate;\
+s.sampleRate; // server sample rate\
+\
+numchannels is important because buffer type ugens need to know how many they have, it is a fixed number. \
+a frame is a vertical cross-section of samples in a buffer (when thought about visually). if there are two channels, the number of samples will be twice the number of frames. one frame = one sample in one channel. \
+a buffer, on the server side, is just an array of floating point numbers representing each individual sample. \
+\
+a lot of granular ugens need a monophonic buffer to work. \
+\
+readChannel is a ugen that lets us specify which channel we want to read - left or right, 0 or 1:\
+\
+d = Buffer.readChannel(s,"/Users/JamesR/TUNES/SAMPLES/WEALD_PIX_KOLE/SOUNDBANK/Objects/bridgeday_noiseping_fade_10.wav", channels:[0])\
+\
+[b,c,d].do(\{ arg buf; buf.play\});\
+\
+\ul PlayBuf\
+\
+\ulnone (\
+SynthDef.new(\\play,  \{\
+	arg buf=0, rate=1, t_trig=1, spos=0, loop=0, da=2;\
+	var sig;\
+	sig = PlayBuf.ar(1, buf, rate, t_trig, spos, loop, doneAction: da) \
+	sig = sig * 2;   // increase volume\
+	Out.ar(0, sig!2);\
+\}).add;\
+)\
+\
+x = Synth.new(\\play, [\\loop, 1]);\
+x.set(\\rate, exprand(0.10,100)); // randomly change rate\
+x = Synth.new(\\play, [\\buf, b.bufnum, \\loop, 1]); // change which buffer we are using \
+\
+// t-trig on = jump to start pos\
+\
+use sinosc to control the rate for wibbly effects etc: \
+\
+(\
+SynthDef.new(\\play2,  \{\
+	arg buf=0, t_trig=1, spos=0, loop=0, da=2, maxTrnsp=1.2;\
+	var sig, rate;\
+	rate = SinOsc.ar(0.4).range(1,maxTrnsp);\
+	sig = PlayBuf.ar(1, buf, rate, t_trig, spos, loop, doneAction: da); // doneAction:2 will kill the synth when finished\
+	Out.ar(0, sig!2);\
+\}).add;\
+)\
+\
+x = Synth.new(\\play2, [\\buf, c.bufnum, \\amp, 0.7, \\loop, 1]);\
+x.set(\\rate, 0.midiratio); // midi ratio allows us to transpose using midi notes\
+x.set(\\maxTrnsp, 10); // change the top value our sinosc triggers\
+x.set(\\rate, -1); // backwards\
+\
+be careful not to set rate to a negative value in the first place (i.e. inside the def or synth.new) as if loop is set to 0, it will sucessfully read backwards from 0, meaning the 2nd sample it encounters is the 'last' sample of the buffer reading forwards. as this is the trigger for the sample to end, it will effectively not even start and no sound will happen.\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+}
